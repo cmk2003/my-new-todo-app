@@ -1,0 +1,221 @@
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f4f4f4;
+}
+
+.todo-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 20px;
+  position: relative;
+}
+
+/* 元素竖着排 */
+.todo-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.date-navigation {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-top: 50px; /* 可以根据需要调整这个值 */
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #3498db;
+}
+
+.week-display {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.week-days {
+  display: flex;
+  justify-content: space-between;
+}
+
+.week-days span {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 50px;
+  padding: 5px;
+  text-align: center;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  font-size: 14px;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+
+.week-days span.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+  font-weight: bold;
+}
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end; /* 使按钮靠右 */
+  align-items: center;
+  gap: 10px;
+  position: absolute; /* 使用绝对定位 */
+  right: 0;
+  top: 0; /* 保证按钮在顶部 */
+  z-index: 1; /* 确保header-actions在最上层 */
+}
+.generate-report-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #3498db, #6dd5fa);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.generate-report-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.calendar-icon {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.calendar-icon:hover {
+  transform: scale(1.1);
+}
+
+.add-todo {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.add-todo input[type="text"] {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+}
+
+.due-date-input {
+  padding: 10px;
+  border: 1px solid #ddd;
+  width: 150px;
+}
+
+.add-todo button {
+  padding: 10px 15px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.todo-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  background-color: #f9f9f9;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.todo-item.completed {
+  background-color: #e8f5e9;
+  text-decoration: line-through;
+  color: #777;
+}
+
+.todo-item .todo-date {
+  margin-right: 10px;
+  color: #666;
+  font-size: 0.8em;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.todo-item .todo-text {
+  flex-grow: 1;
+}
+
+.todo-item .btn-edit,
+.todo-item .btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.todo-item .btn-edit {
+  color: #3498db;
+}
+
+.todo-item .btn-delete {
+  color: #e74c3c;
+}
+
+.edit-input {
+  flex-grow: 1;
+  padding: 5px;
+  margin-right: 10px;
+}
+
+.btn-save {
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.today-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  border: none;
+  border-radius: 20px;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.today-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}

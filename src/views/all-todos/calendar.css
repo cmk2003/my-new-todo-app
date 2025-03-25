@@ -1,0 +1,128 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+}
+
+.calendar-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    max-width: 960px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #3498db;
+    color: white;
+    padding: 15px 20px;
+    font-size: 18px;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.calendar-grid {
+    padding: 0;
+}
+
+.weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    color: #555;
+    background-color: #f8f8f8;
+    border-bottom: 1px solid #ddd;
+}
+
+.weekdays div {
+    padding: 10px 0;
+    border-right: 1px solid #eee;
+}
+
+.dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: left;
+    background-color: #fff;
+}
+
+.dates div {
+    min-height: 100px;
+    border: 1px solid #eee;
+    padding: 6px;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    white-space: normal;
+    font-size: 12px;
+}
+
+.dates div span.date-number {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.dates div.today {
+    background-color: #eaf4ff;
+    border: 2px solid #3498db;
+}
+
+.dates div.has-events {
+    background-color: #fdfdfd;
+}
+
+.dates div.todo-preview {
+    font-size: 12px;
+    color: #333;
+    line-height: 1.4;
+    max-height: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dates div[title] {
+    position: relative;
+    cursor: help;
+}
+
+.dates div[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0,0,0,0.8);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    z-index: 10;
+    max-width: 200px;
+    font-size: 12px;
+}
+
+/* For holidays or lunar calendar info */
+.dates div.holiday, .dates div.lunar-calendar {
+    font-size: 10px;
+    color: #999;
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+    text-align: center;
+}

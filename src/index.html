@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kite 待办事项</title>
+    <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+    <div class="todo-container">
+        <div class="todo-header">
+            <div class="date-navigation">
+                <button id="prevWeek" class="nav-btn">《</button>
+                <div id="weekDisplay" class="week-display">
+                    <div class="week-days">
+                        <span data-date="03-24">周一<br>03-24</span>
+                        <span class="active" data-date="03-25">周二<br>03-25</span>
+                        <span data-date="03-26">周三<br>03-26</span>
+                        <span data-date="03-27">周四<br>03-27</span>
+                        <span data-date="03-28">周五<br>03-28</span>
+                        <span data-date="03-29">周六<br>03-29</span>
+                        <span data-date="03-30">周日<br>03-30</span>
+                    </div>
+                </div>
+                <button id="nextWeek" class="nav-btn">》</button>
+            </div>
+
+            <div class="header-actions">
+                <button class="generate-report-btn" onclick="generateWeeklyReport()">生成周报</button>
+                <!-- 回到今天 -->
+                <button id="todayBtn" class="today-btn" onclick="backToToday()">回到今天</button>
+                <!-- Calendar SVG Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                    stroke="#3498db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="calendar-icon" onclick="window.location.href='./views/all-todos/calendar.html'">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+
+            </div>
+        </div>
+
+        <div class="add-todo">
+            <input type="text" id="newTodoInput" placeholder="输入新的待办事项">
+            <input type="date" id="todoDueDate" class="due-date-input">
+            <button id="addTodoBtn">添加</button>
+        </div>
+
+        <ul id="todoList" class="todo-list"></ul>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+
+</html>
