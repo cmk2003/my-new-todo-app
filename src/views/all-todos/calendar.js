@@ -1,116 +1,145 @@
-class Calendar {
-    constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        this.currentDate = new Date();
-        this.render();
-        this.attachEventListeners();
-    }
+class ResponsiveCalendar {
+    constructor() {
+        this.currentDate = new Date(2025, 2, 1);
+        // 从本地存储获取todos，如果没有则使用示例数据
+        this.todos = JSON.parse(localStorage.getItem('todos')) || [
+        ];
 
-    getTodos() {
-        return JSON.parse(localStorage.getItem('todos')) || [];
-    }
-
-    render() {
-        const month = this.currentDate.getMonth();
-        const year = this.currentDate.getFullYear();
-        
-        // Update month header
-        document.getElementById('current-month').textContent = `${year}年${month + 1}月`;
-        
-        // Get first and last day of the month
-        const firstDay = new Date(year, month, 1).getDay();
-        const lastDate = new Date(year, month + 1, 0).getDate();
-        
-        const datesContainer = document.getElementById('calendar-dates');
-        datesContainer.innerHTML = '';
-        
-        // Add previous month's dates
-        for (let i = 0; i < firstDay; i++) {
-            const dateEl = document.createElement('div');
-            dateEl.classList.add('other-month');
-            datesContainer.appendChild(dateEl);
-        }
-        
-        // Add current month's dates
-        const todos = this.getTodos();
-        const holidays = this.getHolidays(year, month); // For example: {'2025-03-01': '植树节'}
-    
-        for (let date = 1; date <= lastDate; date++) {
-            const dateEl = document.createElement('div');
-            const currentDate = new Date(year, month, date);
-            const formattedDate = this.formatDate(currentDate);
-        
-            const todosForDate = todos.filter(todo => todo.date === formattedDate);
-        
-            dateEl.classList.add('date-cell');
-            dateEl.innerHTML = `
-                <span class="date-number">${date}</span>
-                <div class="todo-preview">${todosForDate.map(t =>t.text).join('<br/>')}</div>
-            `;
-        
-            // Tooltip
-            if (todosForDate.length > 0) {
-                dateEl.setAttribute('title', todosForDate.map(todo => `${todo.completed ? '✓ ' : ''}${todo.text}`).join('\n'));
-            }
-        
-            // Mark today
-            if (this.isSameDate(currentDate, new Date())) {
-                dateEl.classList.add('today');
-            }
-        
-            if (todosForDate.length > 0) {
-                dateEl.classList.add('has-events');
-            }
-        
-            dateEl.addEventListener('click', () => this.onDateSelect(currentDate));
-            datesContainer.appendChild(dateEl);
-        }
-    }
-    
-
-    // Get holidays for the month (just an example, can be expanded for lunar or more holidays)
-    getHolidays(year, month) {
-        const holidays = {
-            // '2025-03-01': '植树节',
-            // '2025-03-08': '妇女节',
-            // '2025-03-12': '白色情人节',
+        this.events = this.organizeEventsByDate();
+        this.holidays = {
+            '2025-3-1': '龙头节',
+            '2025-3-8': '三八妇女节',
+            '2025-3-12': '植树节',
+            '2025-3-31': '上巳节'
         };
-        return holidays;
+        this.init();
     }
 
-    attachEventListeners() {
-        document.querySelector('.prev-month').addEventListener('click', () => this.changeMonth(-1));
-        document.querySelector('.next-month').addEventListener('click', () => this.changeMonth(1));
+    // 将todos组织成按日期的events
+    organizeEventsByDate() {
+        const eventsByDate = {};
+        console.log('todos', this.todos);
+        this.todos.forEach(todo => {
+            if (!eventsByDate[todo.date]) {
+                eventsByDate[todo.date] = [];
+            }
+            // 根据完成状态添加不同的前缀
+            const eventText = `${todo.completed ? '✓ ' : ''}${todo.text}`;
+            eventsByDate[todo.date].push(eventText);
+        });
+        console.log('eventsByDate', eventsByDate);
+        return eventsByDate;
+    }
+
+    init() {
+        this.renderCalendar();
+    }
+
+    renderCalendar() {
+        const container = document.getElementById('days-container');
+        container.innerHTML = '';
+
+        const year = this.currentDate.getFullYear();
+        const month = this.currentDate.getMonth();
+
+        document.getElementById('current-month').textContent = `${year}年${month + 1}月`;
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+
+        const startingDay = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+        // 前一个月的日期
+        for (let i = 0; i < startingDay; i++) {
+            const prevDay = new Date(year, month, -startingDay + i + 1);
+            this.createDayElement(prevDay, container, true);
+        }
+
+        // 本月日期
+        for (let day = 1; day <= lastDay.getDate(); day++) {
+            const currentDay = new Date(year, month, day);
+            this.createDayElement(currentDay, container);
+        }
+
+        // 下一个月的日期
+        const remainingCells = 42 - (startingDay + lastDay.getDate());
+        for (let i = 1; i <= remainingCells; i++) {
+            const nextDay = new Date(year, month + 1, i);
+            this.createDayElement(nextDay, container, true);
+        }
+    }
+
+    createDayElement(date, container, isOtherMonth = false) {
+        const dateKey = this.formatDate(date);
+        const day = document.createElement('div');
+        day.classList.add('day');
+        
+        if (isOtherMonth) day.classList.add('other-month');
+        
+        const today = new Date();
+        if (this.formatDate(date) === this.formatDate(today)) {
+            day.classList.add('today');
+        }
+
+        const holiday = this.holidays[dateKey];
+        const event = this.events[dateKey] || [];
+        console.log('datekey',dateKey,'events', event);
+
+        day.innerHTML = `
+            <div class="day-header">
+                <span class="day-number ${holiday ? 'holiday' : ''}">${date.getDate()}</span>
+                <span class="holiday">${holiday || ''}</span>
+            </div>
+            <div class="day-events">
+                ${this.renderEvents(dateKey)}
+            </div>
+        `;
+        day.addEventListener('click', () => this.onDateSelect(date));
+
+        // 如果有事件，添加has-events类
+        if (event.length > 0) {
+            day.classList.add('has-events');
+            // 添加title属性，鼠标悬停时显示完整事件
+            day.title = event.join('\n');
+        }
+
+        container.appendChild(day);
+    }
+
+    renderEvents(dateKey) {
+        const event = this.events[dateKey] || [];
+        return event.slice(0, 3).map(event => 
+            `<div class="day-event">${event}</div>`
+        ).join('');
+    }
+
+    // 修复日期格式化方法
+    formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
     }
 
     changeMonth(delta) {
         this.currentDate.setMonth(this.currentDate.getMonth() + delta);
-        this.render();
+        this.renderCalendar();
     }
 
     onDateSelect(date) {
         // 跳转到待办事项页面，并选中当前日期
-        console.log(date);
         const formattedDate = this.formatDate(date);
-
+        console.log('date', formattedDate);
         window.location.href = `../../index.html?date=${formattedDate}`;
-    }
-
-    formatDate(date) {
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    isSameDate(date1, date2) {
-        return date1.getFullYear() === date2.getFullYear() &&
-               date1.getMonth() === date2.getMonth() &&
-               date1.getDate() === date2.getDate();
     }
 }
 
-// Initialize calendar when page loads
+// 创建全局changeMonth函数
+function changeMonth(delta) {
+    window.calendar.changeMonth(delta);
+}
+
+// 在页面加载后初始化日历
 document.addEventListener('DOMContentLoaded', () => {
-    new Calendar('calendar-dates');
+    window.calendar = new ResponsiveCalendar();
 });

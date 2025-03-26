@@ -8,24 +8,24 @@
 </head>
 <body>
     <div class="calendar-container">
-        <div class="calendar-header">
-            <button class="prev-month">←</button>
+        <div id="calendar-header" class="calendar-header">
             <h2 id="current-month">2025年3月</h2>
-            <button class="next-month">→</button>
+            <div class="nav-buttons">
+                <button onclick="changeMonth(-1)">上月</button>
+                <button onclick="changeMonth(1)">下月</button>
+            </div>
         </div>
         <div class="calendar-grid">
             <div class="weekdays">
-                <div>周日</div>
                 <div>周一</div>
                 <div>周二</div>
                 <div>周三</div>
                 <div>周四</div>
                 <div>周五</div>
                 <div>周六</div>
+                <div>周日</div>
             </div>
-            <div id="calendar-dates" class="dates">
-                <!-- Dates will be dynamically populated -->
-            </div>
+            <div id="days-container" class="days"></div>
         </div>
     </div>
     <script src="calendar.js"></script>

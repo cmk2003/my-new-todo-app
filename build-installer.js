@@ -14,12 +14,12 @@ function getInstallerConfig () {
   const outPath = path.join(rootPath, 'release-builds');
 
   return Promise.resolve({
-    appDirectory: path.join(outPath, 'myapp-win32-todo/'),
+    appDirectory: path.join(outPath, 'myapp-win32-ia32/'),
     authors: 'My App Inc.',
     noMsi: true,
     outputDirectory: path.join(outPath, 'windows-installer'),
     exe: 'myapp.exe',
     setupExe: 'MyAppInstaller.exe',
-    setupIcon: path.join(rootPath, 'assets', 'icons', 'win', 'icon.ico')
+    setupIcon: path.join(rootPath,'src', 'assets',  'icon.ico')
   });
 }

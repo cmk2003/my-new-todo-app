@@ -18,6 +18,8 @@ let currentWeekStart = getMondayOfCurrentWeek(today);  // 设置为周一
 // 保存todos到本地存储
 function saveTodosToLocalStorage() {
     localStorage.setItem('todos', JSON.stringify(todos));
+    console.log('todos', todos);
+    console.log("保存到本地存储完成");
 }
 
 // 格式化日期为 YYYY-MM-DD
@@ -32,6 +34,54 @@ function getMondayOfCurrentWeek(date) {
     const diff = day === 0 ? -6 : 1 - day; // 周日偏移为 -6，周一为0，周二为-1...
     d.setDate(d.getDate() + diff);
     return d;
+}
+
+// 迁移昨天未完成的任务并删除昨天未完成的任务
+function migrateUnfinishedTasks() {
+    console.log('todos1', todos);
+    const storedLastCheckDate = localStorage.getItem('lastCheckDate');
+    // 为空则初始化为昨天
+    if (!storedLastCheckDate) {
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        localStorage.setItem('lastCheckDate', formatDate(yesterday));
+        console.log('localStorage', localStorage.getItem('lastCheckDate'));
+        return;
+    }
+    const currentDate = formatDate(today);
+
+    // 如果是新的一天
+    if (storedLastCheckDate !== currentDate) {
+        // 找出昨天的日期
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        const yesterdayDate = formatDate(yesterday);
+
+        // 找出昨天未完成的任务
+        const unfinishedTasks = todos.filter(todo => 
+            todo.date === yesterdayDate && !todo.completed
+        );
+
+        // 将未完成任务迁移到今天
+        unfinishedTasks.forEach(task => {
+            todos.push({
+                id: Date.now() + Math.random(), // 确保唯一ID
+                text: task.text,
+                completed: false,
+                date: currentDate
+            });
+        });
+
+        // 删除昨天未完成的任务
+        console.log('todos2', todos);
+        todos = todos.filter(todo => !(todo.date === yesterdayDate && !todo.completed));
+        console.log('todos3', todos);
+        // 更新最后检查日期
+        localStorage.setItem('lastCheckDate', currentDate);
+
+        // 保存更新后的任务列表
+        saveTodosToLocalStorage();
+    }
 }
 
 // 生成当前周的日期
@@ -74,8 +124,6 @@ function updateWeekDisplay() {
 
     // 设置日期输入框默认值
     todoDueDate.value = currentSelectedDate;
-    // todoDueDate.min = formatDate(currentWeekStart);
-    // todoDueDate.max = formatDate(new Date(currentWeekStart.getFullYear(), currentWeekStart.getMonth(), currentWeekStart.getDate() + 6));
 }
 
 // 渲染待办事项列表
@@ -155,7 +203,7 @@ function addTodo() {
 
     if (newTodoText) {
         todos.push({
-            id: Date.now(),
+            id: Date.now() + Math.random(), // 确保唯一ID
             text: newTodoText,
             completed: false,
             date: dueDate
@@ -207,8 +255,12 @@ nextWeekBtn.addEventListener('click', () => {
 todoDueDate.addEventListener('click', (e) => e.stopPropagation());
 newTodoInput.addEventListener('click', (e) => e.stopPropagation());
 
+
+
 // 初始渲染
 todoDueDate.value = currentSelectedDate;
+// 初始渲染前先迁移未完成任务
+migrateUnfinishedTasks();
 updateWeekDisplay();
 renderTodos();
 
@@ -223,7 +275,6 @@ if (selectedDateFromUrl) {
     renderTodos();
 }
 
-
 function generateWeeklyReport() {
     alert("正在生成周报...（此功能可进一步扩展）");
     // 后续可以添加生成PDF、弹出模态框等逻辑
@@ -235,4 +286,19 @@ function backToToday() {
     currentWeekStart = getMondayOfCurrentWeek(today);
     updateWeekDisplay();
     renderTodos();
+}
+
+// 日期选择器
+function changeWeekDisplay() {
+    // 获取当前日期选择器选中的日期
+    const selectedDate = new Date(todoDueDate.value);
+    // 获取选中日期的周
+    const selectedWeek = getMondayOfCurrentWeek(selectedDate);
+
+    // 更新当前选中日期和周
+    currentSelectedDate = formatDate(selectedDate);
+    currentWeekStart = selectedWeek;
+    updateWeekDisplay();
+    renderTodos();
+
 }
