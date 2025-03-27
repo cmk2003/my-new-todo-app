@@ -302,3 +302,73 @@ function changeWeekDisplay() {
     renderTodos();
 
 }
+
+function setMidnightListener() {
+    // 计算下一个零点的精确时间
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    const timeUntilMidnight = tomorrow - now;
+    
+    // 设置零点触发的定时器
+    const midnightTimer = setTimeout(() => {
+        console.log('零点同步触发');
+        
+        // 更新当前日期
+        const currentDate = formatDate(new Date());
+        
+        // 更新选中日期为今天
+        currentSelectedDate = currentDate;
+        
+        // 获取今天所在周的周一
+        currentWeekStart = getMondayOfCurrentWeek(new Date());
+        
+        // 迁移未完成任务
+        migrateUnfinishedTasks();
+        
+        // 更新周显示
+        updateWeekDisplay();
+        
+        // 渲染待办事项
+        renderTodos();
+        
+        // 重新设置下一个零点的监听器
+        setMidnightListener();
+    }, timeUntilMidnight);
+    
+    console.log(`下次同步将在 ${timeUntilMidnight/1000/60} 分钟后进行`);
+    
+    // 返回定时器，以便可以在需要时清除
+    return midnightTimer;
+}
+
+// 全局变量，存储当前的零点定时器
+let midnightSyncTimer;
+
+// 初始化零点同步
+function initMidnightSync() {
+    // 清除之前可能存在的定时器
+    if (midnightSyncTimer) {
+        clearTimeout(midnightSyncTimer);
+    }
+    
+    // 设置新的零点同步定时器
+    midnightSyncTimer = setMidnightListener();
+}
+
+// 在页面加载时初始化零点同步
+initMidnightSync();
+
+// 可选：在页面获得焦点时重新检查并同步
+window.addEventListener('focus', () => {
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+    
+    // 如果当前时间已经过了零点，立即触发同步
+    if (currentHour === 0 && currentMinute === 0) {
+        initMidnightSync();
+    }
+});
