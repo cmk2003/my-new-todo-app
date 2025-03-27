@@ -20,6 +20,6 @@ function getInstallerConfig () {
     outputDirectory: path.join(outPath, 'windows-installer'),
     exe: 'myapp.exe',
     setupExe: 'MyAppInstaller.exe',
-    setupIcon: path.join(rootPath,'src', 'assets',  'icon.ico')
+    setupIcon: path.join(rootPath, 'src', 'assets', 'icon.ico')
   });
 }

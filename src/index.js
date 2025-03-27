@@ -73,6 +73,13 @@ app.whenReady().then(() => {
   createWindow();
   createTray();
 
+  // 设置开机自启动
+  app.setLoginItemSettings({
+    openAtLogin: true, // 开机时启动
+    path: process.execPath, // Electron 应用的路径
+    args: [] // 启动时的参数（可选）
+  });
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
@@ -80,30 +87,12 @@ app.whenReady().then(() => {
   });
 });
 
+
+
 // 👇 所有窗口关闭时不退出（除非是 mac 以外的系统）
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
-  }
-});
-
-// 👇 IPC 处理任务数据保存与读取
-ipcMain.handle('load-tasks', () => {
-  const filePath = path.join(app.getPath('userData'), 'tasks.json');
-  try {
-    const data = fs.readFileSync(filePath, 'utf-8');
-    return JSON.parse(data);
-  } catch (error) {
-    return {}; // 如果没有任务文件，返回空对象
-  }
-});
-
-ipcMain.handle('save-tasks', (_, tasksByDate) => {
-  const filePath = path.join(app.getPath('userData'), 'tasks.json');
-  try {
-    fs.writeFileSync(filePath, JSON.stringify(tasksByDate, null, 2), 'utf-8');
-  } catch (error) {
-    console.error('保存任务失败:', error);
   }
 });
 
