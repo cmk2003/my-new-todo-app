@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>今日待办</title>
+    <link rel="stylesheet" href="float-window.css">
+</head>
+<body>
+    <div class="hover-area">
+        <div class="hover-trigger" id="hoverTrigger"></div>
+        <div class="float-window" id="floatWindow">
+            <div class="collapsed-indicator"></div>
+            <div class="title-bar">
+                <h3>今日待办事项</h3>
+            </div>
+            <ul id="todoList" class="todo-list">
+                <!-- 待办事项将通过 JavaScript 动态添加 -->
+            </ul>
+            <div class="close-btn" id="closeBtn"></div>
+        </div>
+    </div>
+    <script src="float-window.js"></script>
+</body>
+</html>

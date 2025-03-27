@@ -6,8 +6,9 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
-// 👇 声明主窗口和托盘图标为全局变量
+// 👇 声明主窗口、悬浮窗和托盘图标为全局变量
 let mainWindow = null;
+let floatWindow = null;
 let tray = null;
 
 // 👇 创建主窗口函数
@@ -20,6 +21,7 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
+      contextIsolation: false,
     },
   });
 
@@ -46,13 +48,50 @@ const createWindow = () => {
   });
 };
 
+// 👇 创建悬浮窗函数
+const createFloatWindow = () => {
+  floatWindow = new BrowserWindow({
+    width: 300,
+    height: 400,
+    alwaysOnTop: true,
+    frame: false,
+    resizable: false,
+    transparent: true,
+    skipTaskbar: true,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+    }
+  });
+
+  floatWindow.loadFile(path.join(__dirname, 'views/float-window/float-window.html'));
+  
+  // 设置窗口位置 (屏幕右上角)
+  const { screen } = require('electron');
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+  floatWindow.setPosition(width - 320, 40);
+};
+
 // 👇 创建托盘图标函数
 const createTray = () => {
   const iconPath = path.join(__dirname, 'assets/icon.jpg');
   tray = new Tray(iconPath);
 
   const contextMenu = Menu.buildFromTemplate([
-    { label: '打开', click: () => mainWindow.show() },
+    { label: '打开应用', click: () => mainWindow.show() },
+    { 
+      label: '显示/隐藏悬浮窗', 
+      click: () => {
+        if (floatWindow && floatWindow.isVisible()) {
+          floatWindow.hide();
+        } else if (floatWindow) {
+          floatWindow.show();
+        } else {
+          createFloatWindow();
+        }
+      } 
+    },
     { label: '退出', click: () => {
         app.isQuiting = true;
         app.quit();
@@ -60,7 +99,7 @@ const createTray = () => {
     },
   ]);
 
-  tray.setToolTip('Electron 后台应用');
+  tray.setToolTip('待办事项应用');
   tray.setContextMenu(contextMenu);
 
   tray.on('click', () => {
@@ -71,6 +110,7 @@ const createTray = () => {
 // 👇 应用准备好后创建窗口和托盘
 app.whenReady().then(() => {
   createWindow();
+  createFloatWindow();
   createTray();
 
   // 设置开机自启动
@@ -87,7 +127,26 @@ app.whenReady().then(() => {
   });
 });
 
+// 监听 IPC 事件
+ipcMain.on('show-main-window', () => {
+  if (mainWindow) {
+    mainWindow.show();
+    mainWindow.focus();
+  }
+});
 
+ipcMain.on('close-float-window', () => {
+  if (floatWindow) {
+    floatWindow.hide();
+  }
+});
+
+// 向悬浮窗通知待办事项已更新
+ipcMain.on('todos-updated', () => {
+  if (floatWindow) {
+    floatWindow.webContents.send('todos-updated');
+  }
+});
 
 // 👇 所有窗口关闭时不退出（除非是 mac 以外的系统）
 app.on('window-all-closed', () => {

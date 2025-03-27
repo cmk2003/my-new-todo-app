@@ -20,6 +20,12 @@ function saveTodosToLocalStorage() {
     localStorage.setItem('todos', JSON.stringify(todos));
     console.log('todos', todos);
     console.log("保存到本地存储完成");
+
+    // 通知悬浮窗更新数据
+    if (window.require) {
+        const { ipcRenderer } = require('electron');
+        ipcRenderer.send('todos-updated');
+    }
 }
 
 // 格式化日期为 YYYY-MM-DD
