@@ -2,10 +2,55 @@ const { app, BrowserWindow, ipcMain, Tray, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-if (require('electron-squirrel-startup')) {
-  app.quit();
-}
 
+// 获取数据文件路径
+const getTodosFilePath = () => {
+  const userDataPath = app.getPath('userData');
+  return path.join(userDataPath, 'todos.json');
+};
+// 修改保存数据到文件的处理函数
+ipcMain.on('save-todos-to-file', (event, todos) => {
+  try {
+    const filePath = getTodosFilePath();
+    const jsonString = JSON.stringify(todos, null, 2);
+    
+    // 使用 Buffer 写入以确保正确的编码
+    const buffer = Buffer.from(jsonString, 'utf8');
+    fs.writeFileSync(filePath, buffer);
+    
+    console.log('✅ 成功保存待办事项到文件');
+    event.reply('save-todos-response', { success: true });
+  } catch (error) {
+    console.error('❌ 保存文件失败:', error.message);
+    event.reply('save-todos-response', { 
+      success: false, 
+      error: error.message 
+    });
+  }
+});
+
+// 修改从文件加载数据的处理函数
+ipcMain.on('load-todos-from-file', (event) => {
+  try {
+    const filePath = getTodosFilePath();
+    let todos = [];
+    
+    if (fs.existsSync(filePath)) {
+      // 使用 Buffer 读取以确保正确的编码
+      const buffer = fs.readFileSync(filePath);
+      const fileData = buffer.toString('utf8');
+      todos = JSON.parse(fileData);
+      console.log('✅ 从文件成功读取待办事项');
+    } else {
+      console.log('📝 待办事项文件不存在，返回空数组');
+    }
+    
+    event.returnValue = todos;
+  } catch (error) {
+    console.error('❌ 读取文件失败:', error.message);
+    event.returnValue = [];
+  }
+});
 // 👇 声明主窗口、悬浮窗和托盘图标为全局变量
 let mainWindow = null;
 let floatWindow = null;
@@ -159,4 +204,5 @@ const electron = require('electron')
 /*获取electron窗体的菜单栏*/
 const Menu_index = electron.Menu
 /*隐藏electron创听的菜单栏*/
-Menu_index.setApplicationMenu(null)
+// Menu_index.setApplicationMenu(null)
+

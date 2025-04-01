@@ -1,3 +1,5 @@
+const { ipcRenderer } = require('electron');
+const path = require('path');
 // 获取DOM元素
 const newTodoInput = document.getElementById('newTodoInput');
 const todoDueDate = document.getElementById('todoDueDate');
@@ -8,7 +10,23 @@ const nextWeekBtn = document.getElementById('nextWeek');
 const weekDisplay = document.getElementById('weekDisplay');
 
 // 待办事项数组 - 从本地存储读取
-let todos = JSON.parse(localStorage.getItem('todos')) || [];
+let todos = [];
+try {
+    // 首先尝试从 localStorage 读取
+    const localData = localStorage.getItem('todos');
+    if (localData) {
+        todos = JSON.parse(localData);
+        console.log('从 localStorage 读取数据成功');
+    } else {
+        // localStorage 为空，尝试从文件读取
+        todos = ipcRenderer.sendSync('load-todos-from-file');
+        console.log('从文件读取数据成功');
+    }
+} catch (error) {
+    console.error('localStorage 读取失败，尝试从文件读取:', error);
+    // localStorage 读取失败，从文件读取
+    todos = ipcRenderer.sendSync('load-todos-from-file');
+}
 
 // 获取当前日期
 const today = new Date();
@@ -17,15 +35,19 @@ let currentWeekStart = getMondayOfCurrentWeek(today);  // 设置为周一
 
 // 保存todos到本地存储
 function saveTodosToLocalStorage() {
-    localStorage.setItem('todos', JSON.stringify(todos));
-    console.log('todos', todos);
-    console.log("保存到本地存储完成");
-
-    // 通知悬浮窗更新数据
-    if (window.require) {
-        const { ipcRenderer } = require('electron');
-        ipcRenderer.send('todos-updated');
+    try {
+        // 保存到 localStorage
+        localStorage.setItem('todos', JSON.stringify(todos));
+        console.log('保存到 localStorage 完成');
+    } catch (error) {
+        console.error('localStorage 保存失败:', error);
     }
+
+    // 同时保存到文件
+    ipcRenderer.send('save-todos-to-file', todos);
+    
+    // 通知悬浮窗更新数据
+    ipcRenderer.send('todos-updated');
 }
 
 // 格式化日期为 YYYY-MM-DD
@@ -363,3 +385,11 @@ window.addEventListener('focus', () => {
         initMidnightSync();
     }
 });
+
+// 添加保存响应处理
+ipcRenderer.on('save-todos-response', (event, response) => {
+    if (!response.success) {
+      console.error('保存失败:', response.error);
+      // 可以在这里添加用户提示
+    }
+  });
