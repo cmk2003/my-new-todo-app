@@ -38,7 +38,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "./src/assets/icon.ico",
+      "icon": "build/icons/icon.ico",
       "sign": false
     },
     "nsis":{

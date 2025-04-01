@@ -42,7 +42,7 @@ function getMondayOfCurrentWeek(date) {
     return d;
 }
 
-// 迁移昨天未完成的任务并删除昨天未完成的任务
+// 迁移今天之前所有未完成的任务到今天并删除之前的未完成任务
 function migrateUnfinishedTasks() {
     console.log('todos1', todos);
     const storedLastCheckDate = localStorage.getItem('lastCheckDate');
@@ -58,17 +58,12 @@ function migrateUnfinishedTasks() {
 
     // 如果是新的一天
     if (storedLastCheckDate !== currentDate) {
-        // 找出昨天的日期
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        const yesterdayDate = formatDate(yesterday);
-
-        // 找出昨天未完成的任务
+        // 找出今天之前所有未完成的任务
         const unfinishedTasks = todos.filter(todo => 
-            todo.date === yesterdayDate && !todo.completed
+            todo.date < currentDate && !todo.completed
         );
 
-        // 将未完成任务迁移到今天
+        // 将所有未完成任务迁移到今天
         unfinishedTasks.forEach(task => {
             todos.push({
                 id: Date.now() + Math.random(), // 确保唯一ID
