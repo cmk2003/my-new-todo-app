@@ -9,23 +9,24 @@ const prevWeekBtn = document.getElementById('prevWeek');
 const nextWeekBtn = document.getElementById('nextWeek');
 const weekDisplay = document.getElementById('weekDisplay');
 
-// 待办事项数组 - 从本地存储读取
+// 待办事项数组 - 从文件读取优先
 let todos = [];
 try {
-    // 首先尝试从 localStorage 读取
-    const localData = localStorage.getItem('todos');
-    if (localData) {
-        todos = JSON.parse(localData);
-        console.log('从 localStorage 读取数据成功');
-    } else {
-        // localStorage 为空，尝试从文件读取
-        todos = ipcRenderer.sendSync('load-todos-from-file');
-        console.log('从文件读取数据成功');
-    }
-} catch (error) {
-    console.error('localStorage 读取失败，尝试从文件读取:', error);
-    // localStorage 读取失败，从文件读取
+    // 首先尝试从文件读取
     todos = ipcRenderer.sendSync('load-todos-from-file');
+    console.log('从文件读取数据成功');
+} catch (fileError) {
+    console.error('从文件读取失败，尝试从 localStorage 读取:', fileError);
+    try {
+        // 文件读取失败，尝试从 localStorage 读取
+        const localData = localStorage.getItem('todos');
+        if (localData) {
+            todos = JSON.parse(localData);
+            console.log('从 localStorage 读取数据成功');
+        }
+    } catch (localStorageError) {
+        console.error('localStorage 读取失败:', localStorageError);
+    }
 }
 
 // 获取当前日期
