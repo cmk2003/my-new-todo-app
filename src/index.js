@@ -204,5 +204,5 @@ const electron = require('electron')
 /*获取electron窗体的菜单栏*/
 const Menu_index = electron.Menu
 /*隐藏electron创听的菜单栏*/
-// Menu_index.setApplicationMenu(null)
+Menu_index.setApplicationMenu(null)
 
