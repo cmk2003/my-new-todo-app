@@ -7,9 +7,9 @@ class TodoFloatWindow {
         this.closeBtn = document.getElementById('closeBtn');
         this.todoList = document.getElementById('todoList');
 
-        this.initEventListeners();
+        // this.initEventListeners();
         this.initTodoListRendering();
-        this.autoCollapse();
+        // this.autoCollapse();
     }
 
     initEventListeners() {
@@ -34,12 +34,12 @@ class TodoFloatWindow {
         this.floatWindow.classList.add('collapsed');
     }
 
-    autoCollapse() {
-        // 2秒后自动收起窗口
-        setTimeout(() => {
-            this.collapseWindow();
-        }, 2000);
-    }
+    // autoCollapse() {
+    //     // 2秒后自动收起窗口
+    //     setTimeout(() => {
+    //         this.collapseWindow();
+    //     }, 2000);
+    // }
 
     getTodayDateString() {
         const today = new Date();
